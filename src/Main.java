@@ -67,13 +67,9 @@ public class Main {
 
         System.out.println("start find");
         time = System.nanoTime();
-        IBTree.ForkJoinFinder<Integer> treeFinder = bTree.getFinder(TEST_FIND_VALUE);
-        FORK_JOIN_POOL.submit(treeFinder);
-        FORK_JOIN_POOL.shutdown();
-        FORK_JOIN_POOL.awaitTermination(TIMEOUT, TimeUnit.SECONDS);
-        outExecTime(time, "stop find");
 
-        IBTree<Integer> foundNode = treeFinder.join();
+        IBTree<Integer> foundNode = bTree.search(TEST_FIND_VALUE);
+        outExecTime(time, "stop find");
 
         /*System.out.println("print found tree start");
         time = System.nanoTime();

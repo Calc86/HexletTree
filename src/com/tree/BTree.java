@@ -1,5 +1,6 @@
 package com.tree;
 
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -11,7 +12,7 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
     private IBTree<T> left = null;
     private IBTree<T> right = null;
     private final T value;
-    private AtomicInteger count = new AtomicInteger(1);
+    private final AtomicInteger count = new AtomicInteger(1);
 
     public BTree(T value) {
         this.value = value;
@@ -49,7 +50,7 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
 
     private void addRight(T value) {
         if(getRight() == null)
-            setRight(new BTree<T>(value));
+            setRight(new BTree<>(value));
         else
             getRight().add(value);
     }
@@ -57,7 +58,7 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
 
     private void addLeft(T value){
         if (getLeft() == null)
-            setLeft(new BTree<T>(value));
+            setLeft(new BTree<>(value));
         else
             getLeft().add(value);
     }
@@ -88,7 +89,7 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
 
     @Override
     public ForkJoinFinder<T> getFinder(T findValue) {
-        return new ForkJoinFinder<T>(this, findValue);
+        return new ForkJoinFinder<>(this, findValue);
     }
 
     @Override
@@ -98,5 +99,20 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
             getLeft().printAll();
         if(getRight() != null)
             getRight().printAll();
+    }
+
+    @Override
+    public IBTree<T> search(T searchValue){
+        final ForkJoinPool fjp = new ForkJoinPool();
+
+        IBTree<T> found;
+
+        ForkJoinFinder<T> fjf = getFinder(searchValue);
+        fjp.submit(fjf);
+        found = fjf.join();
+        fjp.shutdown();
+        //fjp.awaitTermination(secTimeout, TimeUnit.SECONDS);
+
+        return found;
     }
 }

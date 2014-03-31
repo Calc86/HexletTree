@@ -20,9 +20,11 @@ public interface IBTree<T extends Comparable<T>> {
 
     public void forEach(Process<T> process);
 
-    public ForkJoinFinder<T> getFinder(T value);
-
     public void printAll();
+
+    public ForkJoinFinder<T> getFinder(T findValue);
+
+    public IBTree<T> search(T searchValue);
 
     //функциональный интерфейс, пределяем что будем делать с деревом
     public interface Process<V extends Comparable<V>> {
@@ -33,6 +35,7 @@ public interface IBTree<T extends Comparable<T>> {
         private final T findValue;
         private final IBTree<T> node;
 
+        //надо подумать по поводу нескольких поисков за раз...
         private static boolean found = false;   //флаг, ставится только вверх, вниз не может, по этому не thread safe
 
         ForkJoinFinder(IBTree<T> node, T findValue) {
