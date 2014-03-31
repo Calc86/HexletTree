@@ -11,14 +11,13 @@ import java.util.concurrent.*;
  */
 public class Main {
 
-    public static final int MAX_VALUE = 3000000;
-    public static final int TEST_FIND_VALUE = 54878;
+    private static final int MAX_VALUE = 3000000;
+    private static final int TEST_FIND_VALUE = 54878;
 
-    private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
-    public static final int TIMEOUT = 30;
-    public static final int N_THREADS = 4;
+    private static final int TIMEOUT = 30;
+    private static final int N_THREADS = 4;
 
-    private static List<String> profiler = new ArrayList<>();
+    private static final List<String> profiler = new ArrayList<>();
 
     private static void fillTreeByArray(IBTree<Integer> bTree){
         int[] values = { 1, 5, 6, 7, 88, 4, 3, 5, 7, 9};

@@ -54,13 +54,13 @@ public interface IBTree<T extends Comparable<T>> {
 
             ForkJoinFinder<T> fLeft = null;
             if(node.getLeft() != null){
-                fLeft = new ForkJoinFinder<T>(node.getLeft(),  findValue);
+                fLeft = new ForkJoinFinder<>(node.getLeft(),  findValue);
                 fLeft.fork();
             }
 
             ForkJoinFinder<T> fRight = null;
             if(node.getRight() != null){
-                fRight = new ForkJoinFinder<T>(node.getRight(),  findValue);
+                fRight = new ForkJoinFinder<>(node.getRight(),  findValue);
                 fRight.fork();
             }
 
