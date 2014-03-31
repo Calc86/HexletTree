@@ -12,16 +12,17 @@ import java.util.concurrent.*;
  */
 public class Main {
 
-    public static final int MAX_VALUE = 300;
+    public static final int MAX_VALUE = 3000000;
+    public static final int TEST_FIND_VALUE = 54878;
 
     private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
-    public static final int TIMEOUT = 5;
+    public static final int TIMEOUT = 30;
     public static final int N_THREADS = 100;
 
     private static List<String> profiler = new ArrayList<>();
 
     private static void fillTreeByArray(IBTree<Integer> bTree){
-        int[] values = {1,5,6,7,88,4,3,5,7,9};
+        int[] values = { 1, 5, 6, 7, 88, 4, 3, 5, 7, 9};
         for (int value : values) {
             bTree.add(value);
         }
@@ -58,43 +59,41 @@ public class Main {
         long time;
 
         final IBTree<Integer> bTree = new BTree<>(MAX_VALUE/2);
-        //final IBTree<Integer> bTree = new BTree<>(1);
 
         System.out.println("start fill com");
         time = System.nanoTime();
-        //fillTreeByRandom(bTree);
-        fillTreeByArray(bTree);
+        fillTreeByRandom(bTree);        //многомиллионное дерево
+        //fillTreeByArray(bTree);       //предопределенный массив
         outExecTime(time, "stop fill com");
-
-        /*IBTree.Process<Integer> process = new IBTree.Process<Integer>() {
-            @Override
-            public void process(Integer value) {
-                System.out.println(value);
-            }
-        };*/
-        //find
 
         System.out.println("start find");
         time = System.nanoTime();
-        IBTreeForkJoinFinder<Integer> rt = bTree.search(88);
+        IBTreeForkJoinFinder<Integer> rt = bTree.search(TEST_FIND_VALUE);
         FORK_JOIN_POOL.submit(rt);
         FORK_JOIN_POOL.shutdown();
         FORK_JOIN_POOL.awaitTermination(TIMEOUT, TimeUnit.SECONDS);
         outExecTime(time, "stop find");
 
-        IBTree<Integer> foundNode = (IBTree<Integer>) rt.join();
+        IBTree<Integer> foundNode = rt.join();
 
-        System.out.println("print found tree start");
+        /*System.out.println("print found tree start");
         time = System.nanoTime();
-        //bTree.forEach(process);
+
         if(foundNode != null)
             foundNode.printAll();
         else System.out.println("Ничавошеньки не нашли");
+
         outExecTime(time, "stop print found tree");
         System.out.println("print AllTree");
-        bTree.printAll();
+
+        bTree.printAll();*/
+
         System.out.println("end");
 
+        //статистика
+        System.out.println("Мы искази значение " + TEST_FIND_VALUE);
+        if(foundNode != null) System.out.println("нод был найден " + foundNode + " value: " + foundNode.getValue());
+        else System.out.println("Random нам не улыбнулся");
         for(String s : profiler)
             System.out.println(s);
     }
