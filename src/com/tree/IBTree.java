@@ -33,6 +33,8 @@ public interface IBTree<T extends Comparable<T>> {
         private final T findValue;
         private final IBTree<T> node;
 
+        private static boolean found = false;   //флаг, ставится только вверх, вниз не может, по этому не thread safe
+
         ForkJoinFinder(IBTree<T> node, T findValue) {
             this.findValue = findValue;
             this.node = node;
@@ -40,8 +42,12 @@ public interface IBTree<T extends Comparable<T>> {
 
         @Override
         protected IBTree<T> compute() {
-            if(node.getValue().equals(findValue))
+            if(node.getValue().equals(findValue)){
+                found = true;
                 return node;
+            }
+
+            if(found) return null; //кто то уже нашел до нас
 
             ForkJoinFinder<T> fLeft = null;
             if(node.getLeft() != null){

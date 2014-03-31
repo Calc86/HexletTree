@@ -16,7 +16,7 @@ public class Main {
 
     private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
     public static final int TIMEOUT = 30;
-    public static final int N_THREADS = 100;
+    public static final int N_THREADS = 4;
 
     private static List<String> profiler = new ArrayList<>();
 
