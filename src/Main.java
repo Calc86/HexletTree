@@ -1,12 +1,10 @@
 import com.tree.BTree;
 import com.tree.IBTree;
+import com.tree.IBTreeForkJoinFinder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by calc on 31.03.14.
@@ -14,10 +12,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class Main {
 
-    public static final int MAX_VALUE = 3000000;
+    public static final int MAX_VALUE = 300;
 
     private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
-    public static final int TIMEOUT = 30;
+    public static final int TIMEOUT = 5;
     public static final int N_THREADS = 100;
 
     private static List<String> profiler = new ArrayList<>();
@@ -60,32 +58,41 @@ public class Main {
         long time;
 
         final IBTree<Integer> bTree = new BTree<>(MAX_VALUE/2);
+        //final IBTree<Integer> bTree = new BTree<>(1);
 
         System.out.println("start fill com");
         time = System.nanoTime();
-        fillTreeByRandom(bTree);
-        //fillTreeByArray(bTree);
+        //fillTreeByRandom(bTree);
+        fillTreeByArray(bTree);
         outExecTime(time, "stop fill com");
 
-        IBTree.Process<Integer> process = new IBTree.Process<Integer>() {
+        /*IBTree.Process<Integer> process = new IBTree.Process<Integer>() {
             @Override
             public void process(Integer value) {
                 System.out.println(value);
             }
-        };
+        };*/
+        //find
 
-        System.out.println("start process com");
+        System.out.println("start find");
         time = System.nanoTime();
-        FORK_JOIN_POOL.submit(bTree.forEachFJ(process));
+        IBTreeForkJoinFinder<Integer> rt = bTree.search(88);
+        FORK_JOIN_POOL.submit(rt);
         FORK_JOIN_POOL.shutdown();
-        FORK_JOIN_POOL.awaitTermination(20, TimeUnit.SECONDS);
-        outExecTime(time, "stop exec com");
+        FORK_JOIN_POOL.awaitTermination(TIMEOUT, TimeUnit.SECONDS);
+        outExecTime(time, "stop find");
 
-        System.out.println("start not fork join out");
+        IBTree<Integer> foundNode = (IBTree<Integer>) rt.join();
+
+        System.out.println("print found tree start");
         time = System.nanoTime();
         //bTree.forEach(process);
+        if(foundNode != null)
+            foundNode.printAll();
+        else System.out.println("Ничавошеньки не нашли");
+        outExecTime(time, "stop print found tree");
+        System.out.println("print AllTree");
         bTree.printAll();
-        outExecTime(time, "stop not fork out");
         System.out.println("end");
 
         for(String s : profiler)

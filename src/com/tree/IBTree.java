@@ -8,9 +8,9 @@ import java.util.concurrent.RecursiveTask;
  */
 public interface IBTree<T extends Comparable<T>> {
 
-    public IBTree getLeft();
+    public IBTree<T> getLeft();
 
-    public IBTree getRight();
+    public IBTree<T> getRight();
 
     public T getValue();
 
@@ -20,12 +20,14 @@ public interface IBTree<T extends Comparable<T>> {
 
     public void forEach(Process<T> process);
 
-    public RecursiveTask<Integer> forEachFJ(Process<T> process);
+    public IBTreeForkJoinFinder<T> search(T value);
 
     public void printAll();
 
     //функциональный интерфейс, пределяем что будем делать с деревом
-    public interface Process<T extends Comparable<T>> {
-        public void process(T value);
+    public interface Process<V extends Comparable<V>> {
+        public void process(V value);
     }
 }
+
+

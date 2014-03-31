@@ -19,12 +19,12 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
     }
 
     @Override
-    public IBTree getLeft() {
+    public IBTree<T> getLeft() {
         return left;
     }
 
     @Override
-    public IBTree getRight() {
+    public IBTree<T> getRight() {
         return right;
     }
 
@@ -50,7 +50,7 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
 
     private void addRight(T value) {
         if(getRight() == null)
-            setRight(new BTree<>(value));
+            setRight(new BTree<T>(value));
         else
             getRight().add(value);
     }
@@ -58,7 +58,7 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
 
     private void addLeft(T value){
         if (getLeft() == null)
-            setLeft(new BTree<>(value));
+            setLeft(new BTree<T>(value));
         else
             getLeft().add(value);
     }
@@ -88,32 +88,8 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
     }
 
     @Override
-    public RecursiveTask<Integer> forEachFJ(final Process<T> process) {
-        RecursiveTask<Integer> rt = new RecursiveTask<Integer>() {
-            @Override
-            protected Integer compute() {
-                process.process(getValue());
-
-                return 0;
-            }
-        };
-
-        // создаем 2 форка
-        RecursiveTask<Integer> rt_left = null;
-        RecursiveTask<Integer> rt_right = null ;
-        if(getLeft() != null){
-            rt_left = getLeft().forEachFJ(process);
-            rt_left.fork();
-        }
-        if(getRight() != null){
-            rt_right = getRight().forEachFJ(process);
-            rt_right.fork();
-        }
-
-        if(rt_left != null) rt_left.join();
-        if(rt_right != null) rt_right.join();
-
-        return rt;
+    public IBTreeForkJoinFinder<T> search(T findValue) {
+        return new IBTreeForkJoinFinder<T>(this, findValue);
     }
 
     @Override
