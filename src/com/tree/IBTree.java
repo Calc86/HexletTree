@@ -26,6 +26,12 @@ public interface IBTree<T extends Comparable<T>> {
     public interface Process<V extends Comparable<V>> {
         public void process(V value);
     }
+
+    public interface ExProcess<V extends Comparable<V>> {
+        public void process(V value, int count);
+    }
+
+    public int childCount(boolean returnCount);
 }
 
 

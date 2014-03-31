@@ -11,10 +11,12 @@ import java.util.concurrent.*;
  */
 public class Main {
 
-    private static final int MAX_VALUE = 3000000;
-    private static final int TEST_FIND_VALUE = MAX_VALUE/2-2;
+    private static final int TRY_VALUES = 9000000-1;    //Сколько значений будем запихивать в дерево
+    private static final int MAX_VALUE = 9000000*100;   //Максимальное значение (влияет на распределенность дерева)
+    private static final int RAND = (int)(Math.random() * MAX_VALUE);
+    private static final int TEST_FIND_VALUE = MAX_VALUE-RAND;
 
-    private static final int TIMEOUT = 30;
+    private static final int TIMEOUT = 60;
     private static final int N_THREADS = 4; // 4 - оптимально
 
     private static final List<String> profiler = new ArrayList<>();
@@ -29,13 +31,17 @@ public class Main {
     private static void fillTreeByRandom(final IBTree<Integer> bTree){
         ExecutorService executor = Executors.newFixedThreadPool(N_THREADS);
 
-        for (int i = 0; i < MAX_VALUE; i++) {
+        // -1 we already have one
+        for (int i = 0; i < TRY_VALUES; i++) {
             Thread t = new Thread(){
                 @Override
                 public void run() {
-                    bTree.add((int) (Math.random() * MAX_VALUE));
+                    int rand = (int) (Math.random() * MAX_VALUE);
+                    bTree.add(rand);
+                    //System.out.println("try " + rand);
                 }
             };
+
             executor.submit(t);
         }
         executor.shutdown();
@@ -56,7 +62,7 @@ public class Main {
 
         long time;
 
-        final IBTree<Integer> bTree = new BTree<>(MAX_VALUE/2);
+        final IBTree<Integer> bTree = new BTree<>((int) (Math.random() * MAX_VALUE));
 
         System.out.println("start fill com");
         time = System.nanoTime();
@@ -85,9 +91,11 @@ public class Main {
         System.out.println("end");
 
         //статистика
-        System.out.println("Мы искази значение " + TEST_FIND_VALUE);
+        System.out.println("Мы искали значение " + TEST_FIND_VALUE);
         if(foundNode != null) System.out.println("нод был найден " + foundNode + " value: " + foundNode.getValue());
         else System.out.println("Random нам не улыбнулся");
+        System.out.println("Количество элементов в дереве: " + bTree.childCount(false));
+        System.out.println("Count в дереве: " + bTree.childCount(true));
         for(String s : profiler)
             System.out.println(s);
     }
