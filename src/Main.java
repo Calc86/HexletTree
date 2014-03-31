@@ -1,6 +1,5 @@
 import com.tree.BTree;
 import com.tree.IBTree;
-import com.tree.IBTreeForkJoinFinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +67,7 @@ public class Main {
 
         System.out.println("start find");
         time = System.nanoTime();
-        IBTreeForkJoinFinder<Integer> rt = bTree.search(TEST_FIND_VALUE);
+        IBTree.IBTreeForkJoinFinder<Integer> rt = bTree.search(TEST_FIND_VALUE);
         FORK_JOIN_POOL.submit(rt);
         FORK_JOIN_POOL.shutdown();
         FORK_JOIN_POOL.awaitTermination(TIMEOUT, TimeUnit.SECONDS);
