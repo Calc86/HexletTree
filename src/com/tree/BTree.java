@@ -1,6 +1,7 @@
 package com.tree;
 
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -88,11 +89,6 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
     }
 
     @Override
-    public ForkJoinFinder<T> getFinder(T findValue) {
-        return new ForkJoinFinder<>(this, findValue);
-    }
-
-    @Override
     public void printAll() {
         System.out.println(value + ":" + count);
         if(getLeft() != null)
@@ -101,13 +97,62 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
             getRight().printAll();
     }
 
+    private class Flag{
+        public boolean isFound = false;
+    }
+
+    private class ForkJoinFinder<T extends Comparable<T>> extends RecursiveTask<IBTree<T>> {
+        private final T findValue;
+        private final IBTree<T> node;
+
+        // тащим полотенцем
+        private final Flag flag;
+
+        ForkJoinFinder(IBTree<T> node, T findValue, Flag flag) {
+            this.findValue = findValue;
+            this.node = node;
+            this.flag = flag;
+        }
+
+        private  ForkJoinFinder<T> startNodeFind(IBTree<T> node, T findValue){
+            if(node == null) return null;
+
+            ForkJoinFinder<T> fjf = new ForkJoinFinder<>(node,  findValue, flag);
+            fjf.fork();
+
+            return fjf;
+        }
+
+        @Override
+        protected IBTree<T> compute() {
+            if(node.getValue().equals(findValue)){
+                flag.isFound = true;
+                return node;
+            }
+
+            if(flag.isFound) return null; //кто то уже нашел до нас
+
+            IBTree<T> found = null;
+
+            ForkJoinFinder<T> f1 = startNodeFind(node.getLeft(), findValue);
+            ForkJoinFinder<T> f2 = startNodeFind(node.getRight(), findValue);
+            if(f1 != null) found = f1.join();
+            if(found != null) return found;
+            if(f2 != null) found = f2.join();
+
+            return found;
+        }
+    }
+
     @Override
     public IBTree<T> search(T searchValue){
         final ForkJoinPool fjp = new ForkJoinPool();
 
         IBTree<T> found;
 
-        ForkJoinFinder<T> fjf = getFinder(searchValue);
+        Flag flag = new Flag();
+
+        ForkJoinFinder<T> fjf = new ForkJoinFinder<>(this, searchValue, flag);
         fjp.submit(fjf);
         found = fjf.join();
         fjp.shutdown();

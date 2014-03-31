@@ -12,10 +12,10 @@ import java.util.concurrent.*;
 public class Main {
 
     private static final int MAX_VALUE = 3000000;
-    private static final int TEST_FIND_VALUE = 54878;
+    private static final int TEST_FIND_VALUE = MAX_VALUE/2-2;
 
     private static final int TIMEOUT = 30;
-    private static final int N_THREADS = 4;
+    private static final int N_THREADS = 4; // 4 - оптимально
 
     private static final List<String> profiler = new ArrayList<>();
 
