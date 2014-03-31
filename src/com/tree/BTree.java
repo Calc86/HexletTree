@@ -1,6 +1,5 @@
 package com.tree;
 
-import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -88,8 +87,8 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
     }
 
     @Override
-    public IBTreeForkJoinFinder<T> search(T findValue) {
-        return new IBTreeForkJoinFinder<T>(this, findValue);
+    public ForkJoinFinder<T> getFinder(T findValue) {
+        return new ForkJoinFinder<T>(this, findValue);
     }
 
     @Override

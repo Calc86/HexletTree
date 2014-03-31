@@ -20,7 +20,7 @@ public interface IBTree<T extends Comparable<T>> {
 
     public void forEach(Process<T> process);
 
-    public IBTreeForkJoinFinder<T> search(T value);
+    public ForkJoinFinder<T> getFinder(T value);
 
     public void printAll();
 
@@ -29,11 +29,11 @@ public interface IBTree<T extends Comparable<T>> {
         public void process(V value);
     }
 
-    public class IBTreeForkJoinFinder<T extends Comparable<T>> extends RecursiveTask<IBTree<T>> {
+    public class ForkJoinFinder<T extends Comparable<T>> extends RecursiveTask<IBTree<T>> {
         private final T findValue;
         private final IBTree<T> node;
 
-        IBTreeForkJoinFinder(IBTree<T> node, T findValue) {
+        ForkJoinFinder(IBTree<T> node, T findValue) {
             this.findValue = findValue;
             this.node = node;
         }
@@ -43,15 +43,15 @@ public interface IBTree<T extends Comparable<T>> {
             if(node.getValue().equals(findValue))
                 return node;
 
-            IBTreeForkJoinFinder<T> fLeft = null;
+            ForkJoinFinder<T> fLeft = null;
             if(node.getLeft() != null){
-                fLeft = new IBTreeForkJoinFinder<T>(node.getLeft(),  findValue);
+                fLeft = new ForkJoinFinder<T>(node.getLeft(),  findValue);
                 fLeft.fork();
             }
 
-            IBTreeForkJoinFinder<T> fRight = null;
+            ForkJoinFinder<T> fRight = null;
             if(node.getRight() != null){
-                fRight = new IBTreeForkJoinFinder<T>(node.getRight(),  findValue);
+                fRight = new ForkJoinFinder<T>(node.getRight(),  findValue);
                 fRight.fork();
             }
 
