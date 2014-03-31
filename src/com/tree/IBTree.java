@@ -43,6 +43,16 @@ public interface IBTree<T extends Comparable<T>> {
             this.node = node;
         }
 
+        private  ForkJoinFinder<T> startNodeFind(IBTree<T> node, T findValue){
+            if(node == null) return null;
+
+            ForkJoinFinder<T> fjf = new ForkJoinFinder<T>(node,  findValue);
+            fjf.fork();
+
+            return fjf;
+        }
+
+
         @Override
         protected IBTree<T> compute() {
             if(node.getValue().equals(findValue)){
@@ -52,23 +62,15 @@ public interface IBTree<T extends Comparable<T>> {
 
             if(found) return null; //кто то уже нашел до нас
 
-            ForkJoinFinder<T> fLeft = null;
-            if(node.getLeft() != null){
-                fLeft = new ForkJoinFinder<>(node.getLeft(),  findValue);
-                fLeft.fork();
-            }
+            IBTree<T> found = null;
 
-            ForkJoinFinder<T> fRight = null;
-            if(node.getRight() != null){
-                fRight = new ForkJoinFinder<>(node.getRight(),  findValue);
-                fRight.fork();
-            }
+            ForkJoinFinder<T> f1 = startNodeFind(node.getLeft(), findValue);
+            ForkJoinFinder<T> f2 = startNodeFind(node.getRight(), findValue);
+            if(f1 != null) found = f1.join();
+            if(found != null) return found;
+            if(f2 != null) found = f2.join();
 
-            IBTree<T> found;
-            if(fLeft != null && (found = fLeft.join()) != null) return found;
-            if(fRight != null && (found = fRight.join()) != null) return found;
-
-            return null;
+            return found;
         }
     }
 }
