@@ -11,8 +11,9 @@ import java.util.concurrent.*;
  */
 public class Main {
 
-    private static final int TRY_VALUES = 9000000-1;    //Сколько значений будем запихивать в дерево
-    private static final int MAX_VALUE = 9000000*100;   //Максимальное значение (влияет на распределенность дерева)
+    private static final int TRY_VALUES = 90000-1;    //Сколько значений будем запихивать в дерево
+    public static final int MAX_VALUE_MULTIPLIER = 1;
+    private static final int MAX_VALUE = TRY_VALUES * MAX_VALUE_MULTIPLIER;   //Максимальное значение (влияет на распределенность дерева)
     private static final int RAND = (int)(Math.random() * MAX_VALUE);
     private static final int TEST_FIND_VALUE = MAX_VALUE-RAND;
 
@@ -94,9 +95,10 @@ public class Main {
         System.out.println("Мы искали значение " + TEST_FIND_VALUE);
         if(foundNode != null) System.out.println("нод был найден " + foundNode + " value: " + foundNode.getValue());
         else System.out.println("Random нам не улыбнулся");
-        System.out.println("Количество элементов в дереве: " + bTree.childCount(false));
-        System.out.println("Count в дереве: " + bTree.childCount(true));
+        System.out.println("Количество нодов: " + bTree.getChildCount());
+        System.out.println("Количество count: " + bTree.getTreeCounts());
         for(String s : profiler)
             System.out.println(s);
+
     }
 }

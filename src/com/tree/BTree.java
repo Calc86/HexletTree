@@ -1,10 +1,7 @@
 package com.tree;
 
-import sun.net.www.content.image.x_xpixmap;
-
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -74,50 +71,53 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
         this.right = right;
     }
 
-
-    public int childCount(boolean returnCount) {
-        ForkJoinPool fjp = new ForkJoinPool();
-        ForkJoinCounter fjc = new ForkJoinCounter(this,returnCount);
-        fjp.submit(fjc);
-        int count = fjc.join();
-        fjp.shutdown();
-        return count;
+    public int getChildCount(){
+        return forEachEx((node) -> 1);
     }
 
-    private class ForkJoinCounter extends RecursiveTask<Integer> {
-        private int count = 0;
-        IBTree<T> node;
-        private boolean returnCount;
+    public int getTreeCounts(){
+        return forEachEx(IBTree<T>::getCount);
+    }
 
-        private ForkJoinCounter(IBTree<T> node, boolean returnCount) {
+    class ForkJoinForEach extends RecursiveTask<Integer>{
+        private final IBTree<T> node;
+        private final ProcessEx<T> process;
+        private int result;
+
+        ForkJoinForEach(IBTree<T> node, ProcessEx<T> process) {
             this.node = node;
-            this.returnCount = returnCount;
-        }
-
-        private int add(){
-            if(returnCount)
-                return node.getCount();
-            else
-                return 1;
+            this.process = process;
         }
 
         @Override
         protected Integer compute() {
-            count += add();
-            ForkJoinCounter c1 = null;
-            ForkJoinCounter c2 = null;
+            result += process.process(node);
 
-            if(node.getLeft() != null)  c1 = new ForkJoinCounter(node.getLeft(), returnCount);
-            if(node.getRight() != null) c2 = new ForkJoinCounter(node.getRight(), returnCount);
+            ForkJoinForEach c1 = null;
+            ForkJoinForEach c2 = null;
+
+            if(node.getLeft() != null)  c1 = new ForkJoinForEach(node.getLeft(),  process);
+            if(node.getRight() != null) c2 = new ForkJoinForEach(node.getRight(), process);
 
             if(c1 != null) c1.fork();
             if(c2 != null) c2.fork();
 
-            if(c1 != null) count += c1.join();
-            if(c2 != null) count += c2.join();
+            if(c1 != null) result += c1.join();
+            if(c2 != null) result += c2.join();
 
-            return count;
+            return result;
         }
+    }
+
+    public int forEachEx(final ProcessEx<T> processEx){
+        ForkJoinPool fjp = new ForkJoinPool();
+
+        ForkJoinForEach forkJoinForEach = new ForkJoinForEach(this,processEx);
+        fjp.submit(forkJoinForEach);
+        int count = forkJoinForEach.join();
+        fjp.shutdown();
+
+        return count;
     }
 
     @Override
@@ -165,10 +165,10 @@ public class BTree<T extends Comparable<T>> implements IBTree<T> {
         private ForkJoinFinder<T> startNodeFind(IBTree<T> node, T findValue){
             if(node == null) return null;
 
-            ForkJoinFinder<T> fjf = new ForkJoinFinder<>(node,  findValue, flag);
-            fjf.fork();
+            ForkJoinFinder<T> forkJoinFinder = new ForkJoinFinder<>(node,  findValue, flag);
+            forkJoinFinder.fork();
 
-            return fjf;
+            return forkJoinFinder;
         }
 
         @Override

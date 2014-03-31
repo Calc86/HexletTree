@@ -27,11 +27,15 @@ public interface IBTree<T extends Comparable<T>> {
         public void process(V value);
     }
 
-    public interface ExProcess<V extends Comparable<V>> {
-        public void process(V value, int count);
+    //функциональный интерфейс в котором у нас есть нода
+    public interface ProcessEx<T extends Comparable<T>> {
+        public int process(IBTree<T> node);
     }
 
-    public int childCount(boolean returnCount);
+    public int forEachEx(final ProcessEx<T> processEx);
+
+    public int getChildCount();
+    public int getTreeCounts();
 }
 
 
